@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe StripeEvent::WebhookController do
+describe StripeEvent::WebhookController, "#event" do
   def event_post(params)
     post :event, params.merge(:use_route => :stripe_event)
   end
