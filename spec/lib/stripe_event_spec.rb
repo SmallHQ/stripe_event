@@ -7,6 +7,32 @@ describe StripeEvent do
     expect(described_class.backend).to eq ActiveSupport::Notifications
   end
 
+  describe ".pattern" do
+    context "given no arguments" do
+      let(:regexp) { described_class.pattern }
+
+      it "matches event types in the namespace" do
+        expect(regexp).to match described_class.namespace(event_type)
+      end
+
+      it "does not match event types outside the namespace" do
+        expect(regexp).to_not match event_type
+      end
+    end
+
+    context "given a list of event types" do
+      let(:regexp) { described_class.pattern(event_type) }
+
+      it "matches given event types in the namespace" do
+        expect(regexp).to match described_class.namespace(event_type)
+      end
+
+      it "does not match other namespaced event types" do
+        expect(regexp).to_not match described_class.namespace('customer.discount.created')
+      end
+    end
+  end
+
   it "registers a subscriber" do
     subscriber = described_class.subscribe(event_type) { |e| }
     subscribers = subscribers_for_type(event_type)

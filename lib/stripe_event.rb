@@ -4,8 +4,7 @@ require "stripe_event/engine"
 
 module StripeEvent
   class << self
-    attr_accessor :backend
-    attr_accessor :event_retriever
+    attr_accessor :backend, :event_retriever, :prefix
 
     def setup(&block)
       instance_eval(&block)
@@ -27,10 +26,20 @@ module StripeEvent
         block.call payload
       end
     end
+
+    def pattern(*list)
+      list << "\.*" if list.empty?
+      Regexp.union list.map { |name| Regexp.new namespace(name) }
+    end
+
+    def namespace(name)
+      "#{prefix}.#{name}"
+    end
   end
 
   self.backend = ActiveSupport::Notifications
   self.event_retriever = lambda { |params| Stripe::Event.retrieve(params[:id]) }
+  self.prefix = 'stripe_event'
 
   TYPE_LIST = Set[
     'account.updated',
