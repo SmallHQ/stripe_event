@@ -15,13 +15,11 @@ module StripeEvent
     end
 
     def publish(event)
-      backend.publish event[:type], event
+      backend.publish namespace(event[:type]), event
     end
 
     def subscribe(*names, &block)
-      pattern = Regexp.union(names.empty? ? TYPE_LIST.to_a : names)
-
-      backend.subscribe(pattern) do |*args|
+      backend.subscribe pattern(*names) do |*args|
         payload = args.last
         block.call payload
       end

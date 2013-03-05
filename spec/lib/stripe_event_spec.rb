@@ -35,7 +35,7 @@ describe StripeEvent do
 
   it "registers a subscriber" do
     subscriber = described_class.subscribe(event_type) { |e| }
-    subscribers = subscribers_for_type(event_type)
+    subscribers = subscribers_for_type(described_class.namespace(event_type))
     expect(subscribers).to eq [subscriber]
   end
 
@@ -43,7 +43,7 @@ describe StripeEvent do
     described_class.setup do
       subscribe('invoice.payment_succeeded') { |e| }
     end
-    subscribers = subscribers_for_type('invoice.payment_succeeded')
+    subscribers = subscribers_for_type(described_class.namespace('invoice.payment_succeeded'))
     expect(subscribers).to_not be_empty
   end
 
